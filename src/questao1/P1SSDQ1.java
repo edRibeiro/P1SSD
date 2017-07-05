@@ -644,7 +644,7 @@ public class P1SSDQ1 extends javax.swing.JFrame {
             }
             index_maiormotivacao++;
             aluno.setMotivacao(""+index_maiormotivacao);
-            txt_resultado.append("Nome: "+aluno.getNome()+", Sexo: "+aluno.getSexo()+", Periodo: "+aluno.getPeriodo()+ ", Motivação: "+aluno.getMotivacao());
+            txt_resultado.append("Nome: "+aluno.getNome()+", Sexo: "+aluno.getSexo()+", Periodo: "+aluno.getPeriodo()+ ", Motivação: "+aluno.getMotivacao()+"\n");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(rootPane, "Responda todas questões.");
         }

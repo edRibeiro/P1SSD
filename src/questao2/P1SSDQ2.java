@@ -6,9 +6,7 @@
 package questao2;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
@@ -29,16 +27,17 @@ public class P1SSDQ2 extends javax.swing.JFrame {
     /**
      * Creates new form P1SSDQ2
      */
+    private Instances ins; 
     DefaultListModel model;
     //Para manipular a lista entrar no site:http://www.douglaspasqua.com/2011/12/20/java-tips-usando-jlist/
     public P1SSDQ2() {
         
         try {
             ConverterUtils.DataSource ds = new ConverterUtils.DataSource("src/Respostas-28-07.arff");
-            Instances ins = ds.getDataSet();
+            this.ins= ds.getDataSet();
             //System.out.println(ins.toString());
 
-            ins.setClassIndex(ins.numAttributes() - 1);
+            this.ins.setClassIndex(this.ins.numAttributes() - 1);
 
             ArrayList<Atributo> atributos = new ArrayList();
 
@@ -58,23 +57,9 @@ public class P1SSDQ2 extends javax.swing.JFrame {
                 System.out.println(a);
             }
             
-            System.out.println(associationRules(ins, new int[]{ 2,5,7}));
-            System.out.println("------------------------");
+            //System.out.println((ins, new int[]{ 2,5,7}));
+            //System.out.println("------------------------");
             // build associator
-            Apriori apriori = new Apriori();
-            apriori.setClassIndex(ins.classIndex());
-            apriori.buildAssociations(ins);
-
-            //output associator
-            System.out.println(apriori);
-            System.out.println();
-            System.out.println("------------------------1");
-            System.out.println(apriori.getAssociationRules().getRules().get(0));
-
-            List<AssociationRule> lista = apriori.getAssociationRules().getRules();
-            System.out.println(lista.get(0).getPremise());
-            System.out.println(lista.get(0).getConsequence());
-            System.out.println(apriori.getNumRules());
 
             //System.out.println(ins.attribute(0).value(0));
             //System.out.println(ins.attribute(0).value(1));
@@ -102,7 +87,7 @@ public class P1SSDQ2 extends javax.swing.JFrame {
         jList1 = new javax.swing.JList<>();
         jButton5 = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        txt_resultado = new javax.swing.JTextArea();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -116,9 +101,9 @@ public class P1SSDQ2 extends javax.swing.JFrame {
             }
         });
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane3.setViewportView(jTextArea1);
+        txt_resultado.setColumns(20);
+        txt_resultado.setRows(5);
+        jScrollPane3.setViewportView(txt_resultado);
 
         jLabel1.setText("Questão 2");
 
@@ -161,6 +146,36 @@ public class P1SSDQ2 extends javax.swing.JFrame {
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
+            int[] indexes = jList1.getSelectedIndices();
+            Apriori apriori = new Apriori();
+            Instances filteredData = ins;
+            for(int i: indexes){
+                filteredData.deleteAttributeAt(i);
+            }
+            
+            apriori.setClassIndex(filteredData.classIndex());
+        try {
+            apriori.buildAssociations(filteredData);
+        } catch (Exception ex) {
+            Logger.getLogger(P1SSDQ2.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+            //output associator
+            //System.out.println(apriori);
+            System.out.println();
+            System.out.println("------------------------1");
+            System.out.println(apriori.getAssociationRules().getRules().get(0));
+
+            List<AssociationRule> lista = apriori.getAssociationRules().getRules();
+            System.out.println(lista.get(0).getPremise());
+            System.out.println(lista.get(0).getConsequence());
+            System.out.println(apriori.getNumRules());
+            for(AssociationRule ass: lista){
+                txt_resultado.append(ass.getPremise()+" ==> "+ass.getConsequence()+"\n");
+            }
+        
+        
+        
     }//GEN-LAST:event_jButton5ActionPerformed
 
     /**
@@ -204,9 +219,9 @@ public class P1SSDQ2 extends javax.swing.JFrame {
     private javax.swing.JList<String> jList1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea txt_resultado;
     // End of variables declaration//GEN-END:variables
-    public String associationRules(Instances data, int[] indexes) {
+    public final Instances associationRules(Instances data, int[] indexes) {
 
         String associationRules = null;
         Instances newData = data;
@@ -217,13 +232,16 @@ public class P1SSDQ2 extends javax.swing.JFrame {
         remove.setAttributeIndicesArray(indexes);
         remove.setInvertSelection(true);
         try {
+            
             remove.setOptions(options);
             remove.setInputFormat(data);
             newData = Filter.useFilter(data, remove);
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("Fail");
         }
-
+        return newData;
+        /*
         Instances filteredData = newData;
         NumericToNominal filter = new NumericToNominal();
         try {
@@ -232,6 +250,7 @@ public class P1SSDQ2 extends javax.swing.JFrame {
             filteredData = Filter.useFilter(newData, filter);
         } catch (Exception e1) {
             e1.printStackTrace();
+            System.out.println("Fail");
         }
 
         Apriori aprioriObj = new Apriori();
@@ -240,11 +259,14 @@ public class P1SSDQ2 extends javax.swing.JFrame {
             aprioriObj.buildAssociations(filteredData);
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("Fail");
         }
-        associationRules = aprioriObj.toString();
+        //associationRules = aprioriObj.toString();
         //System.out.println("A Priori Rules: "+associationRules);
 
-        return associationRules;
+        return aprioriObj;
+        
+        */
 
     }
 
