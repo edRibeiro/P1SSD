@@ -340,6 +340,7 @@ public class P1SSDQ1 extends javax.swing.JFrame {
 
         origemSelect.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Particular", "Estadual", "Federal" }));
 
+        txt_resultado.setEditable(false);
         txt_resultado.setColumns(20);
         txt_resultado.setRows(5);
         jScrollPane1.setViewportView(txt_resultado);

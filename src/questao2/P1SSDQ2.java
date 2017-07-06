@@ -6,7 +6,9 @@
 package questao2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
@@ -29,6 +31,7 @@ public class P1SSDQ2 extends javax.swing.JFrame {
      */
     private Instances ins; 
     DefaultListModel model;
+    Map<String, Integer> atribs= new HashMap<String, Integer>();
     //Para manipular a lista entrar no site:http://www.douglaspasqua.com/2011/12/20/java-tips-usando-jlist/
     public P1SSDQ2() {
         
@@ -44,6 +47,7 @@ public class P1SSDQ2 extends javax.swing.JFrame {
             for (int i = 0; i < ins.numAttributes(); i++) {
                 Atributo a = new Atributo();
                 a.setNome(ins.attribute(i).name());
+                atribs.put(ins.attribute(i).name(), i+1);
                 // atributo.put(ins.attribute(i).name(), valor)
                 ArrayList<String> valores = new ArrayList();
                 for (int j = 0; j < ins.attribute(i).numValues(); j++) {
@@ -89,6 +93,7 @@ public class P1SSDQ2 extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         txt_resultado = new javax.swing.JTextArea();
         jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -101,11 +106,14 @@ public class P1SSDQ2 extends javax.swing.JFrame {
             }
         });
 
+        txt_resultado.setEditable(false);
         txt_resultado.setColumns(20);
         txt_resultado.setRows(5);
         jScrollPane3.setViewportView(txt_resultado);
 
         jLabel1.setText("Questão 2");
+
+        jLabel2.setText("Selecione os atributos que não participarão da classificação");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -115,26 +123,34 @@ public class P1SSDQ2 extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jScrollPane1))
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 441, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(322, 322, 322)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 441, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(54, 54, 54)
                         .addComponent(jLabel1)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addGap(27, 27, 27)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap()
+                        .addComponent(jLabel1)
+                        .addGap(27, 27, 27)
+                        .addComponent(jScrollPane3))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(40, 40, 40)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jButton5)
                         .addGap(0, 51, Short.MAX_VALUE)))
@@ -146,12 +162,22 @@ public class P1SSDQ2 extends javax.swing.JFrame {
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
-            int[] indexes = jList1.getSelectedIndices();
+            List values = jList1.getSelectedValuesList();
+            Object[] v =values.toArray();
+            Map<String, Integer> a = atribs;
+            int[] indexes = new int[v.length];
+            int i=0;
+            for(Object key: v){
+                indexes[i]=a.get(String.valueOf(key));
+                i++;
+            }            
+            System.err.println(arrayToString(indexes));
             Apriori apriori = new Apriori();
-            Instances filteredData = ins;
-            for(int i: indexes){
+            apriori.setNumRules(5);
+            Instances filteredData = associationRules(ins, indexes);
+            /*for(int i: indexes){
                 filteredData.deleteAttributeAt(i);
-            }
+            }*/
             
             apriori.setClassIndex(filteredData.classIndex());
         try {
@@ -162,14 +188,14 @@ public class P1SSDQ2 extends javax.swing.JFrame {
 
             //output associator
             //System.out.println(apriori);
-            System.out.println();
-            System.out.println("------------------------1");
-            System.out.println(apriori.getAssociationRules().getRules().get(0));
+           // System.out.println();
+            //System.out.println("------------------------1");
+            //System.out.println(apriori.getAssociationRules().getRules().get(0));
 
             List<AssociationRule> lista = apriori.getAssociationRules().getRules();
-            System.out.println(lista.get(0).getPremise());
-            System.out.println(lista.get(0).getConsequence());
-            System.out.println(apriori.getNumRules());
+            //System.out.println(lista.get(0).getPremise());
+            //System.out.println(lista.get(0).getConsequence());
+            //System.out.println(apriori.getNumRules());
             for(AssociationRule ass: lista){
                 txt_resultado.append(ass.getPremise()+" ==> "+ass.getConsequence()+"\n");
             }
@@ -177,7 +203,15 @@ public class P1SSDQ2 extends javax.swing.JFrame {
         
         
     }//GEN-LAST:event_jButton5ActionPerformed
-
+    
+    private String arrayToString(int[] index){
+        String r="";
+        for(int i: index){
+            r+=i+", ";
+        }
+        r=r.substring(0, r.length()-2);
+        return r;
+    }
     /**
      * @param args the command line arguments
      */
@@ -216,6 +250,7 @@ public class P1SSDQ2 extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JList<String> jList1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
@@ -225,9 +260,13 @@ public class P1SSDQ2 extends javax.swing.JFrame {
 
         String associationRules = null;
         Instances newData = data;
+        System.out.println("Antes da Remoção:");
+        /*for(int i =0; i<newData.numAttributes(); i++){
+            System.out.println(newData.attribute(i));
+        }*/
         String[] options = new String[2];
         options[0] = "-R";
-        options[1] = "1";
+        options[1] = arrayToString(indexes);
         Remove remove = new Remove();
         remove.setAttributeIndicesArray(indexes);
         remove.setInvertSelection(true);
@@ -240,8 +279,11 @@ public class P1SSDQ2 extends javax.swing.JFrame {
             e.printStackTrace();
             System.out.println("Fail");
         }
-        return newData;
-        /*
+        //return newData;
+        /*System.out.println("Depois da Remoção 1:");
+        for(int i =0; i<newData.numAttributes(); i++){
+            System.out.println(newData.attribute(i));
+        }*/
         Instances filteredData = newData;
         NumericToNominal filter = new NumericToNominal();
         try {
@@ -252,7 +294,12 @@ public class P1SSDQ2 extends javax.swing.JFrame {
             e1.printStackTrace();
             System.out.println("Fail");
         }
-
+        System.out.println("Depois da Remoção:");
+        for(int i =0; i<newData.numAttributes(); i++){
+            System.out.println(filteredData.attribute(i));
+        }
+        return filteredData;
+        /*
         Apriori aprioriObj = new Apriori();
         aprioriObj.setNumRules(5);
         try {
